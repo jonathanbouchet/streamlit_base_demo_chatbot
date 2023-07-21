@@ -1,5 +1,4 @@
 import logging
-from io import StringIO
 
 import openai
 from langchain.chat_models import ChatOpenAI
@@ -14,23 +13,21 @@ from langchain.prompts import (
 import streamlit as st
 from streamlit_chat import message
 from datetime import datetime
-
-# Current log value
-log_stream = StringIO()
+import tiktoken
 
 # Create and configure logger
-# logging.basicConfig(
-#     filename="app.log",
-#     format='%(asctime)s %(message)s',
-#     filemode='w',)
+logging.basicConfig(
+    filename="app.log",
+    format='%(asctime)s %(message)s',
+    filemode='w',)
 
-logging.basicConfig(format='%(asctime)s %(message)s', stream=log_stream, level=logging.INFO)
+# logging.basicConfig(format='%(asctime)s %(message)s', stream=log_stream, level=logging.INFO)
 
 # Creating an object
-# logger = logging.getLogger()
+logger = logging.getLogger()
 
 # Setting the threshold of logger to DEBUG
-# logger.setLevel(logging.INFO)
+logger.setLevel(logging.INFO)
 
 
 def get_time():
@@ -44,6 +41,18 @@ def get_open_ai_key():
     :return:
     """
     return st.secrets["OPENAI_API_KEY"]
+
+
+def get_tokens(text: str, model_name: str) -> int:
+    """
+    calculate the number of tokens corresponding to text and tokenizer for that model
+    :param model_name:
+    :param text:
+    :return:
+    """
+    tokenizer = tiktoken.encoding_for_model(model_name)
+    tokens = tokenizer.encode(text, disallowed_special=())
+    return len(tokens)
 
 
 def get_conversation_string():
@@ -74,6 +83,7 @@ MODEL = st.sidebar.selectbox(
              "text-davinci-003",
              "text-davinci-002"])
 
+show_tokens = st.sidebar.radio(label=":blue[Display tokens]", options=('Yes', 'No'))
 if 'responses' not in st.session_state:
     st.session_state['responses'] = ["How can I assist you?"]
 
@@ -131,18 +141,29 @@ if openai_api_key:
         query = st.text_input("Query: ", key="input")
         if query:
             print(f"query:{query}")
-            # download_str.append(f"{get_time()}\tHuman\t{query}")
             with st.spinner("typing..."):
                 conversation_string = get_conversation_string()
-                st.subheader("Query:")
-                st.write(query)
+                # st.subheader("Query:")
+                # st.write(query)
                 # response = conversation.predict(input=f"Query:\n{query}")
                 response = f"(for debugging only, response = input): {query}"
                 download_str.append(f"{get_time()}\tAI\t{response}")
                 download_str.append(f"{get_time()}\tHuman\t{query}")
-                logging.info(response)
                 logging.info(query)
-                print(f"current transcript:{download_str}")
+                logging.info(response)
+                # print(f"current transcript:{download_str}")
+                if show_tokens == "Yes":
+                    logging.info(f"{query}, # tokens:{get_tokens(query, MODEL)}")
+                    logging.info(f"{response}, # tokens:{get_tokens(response, MODEL)}")
+                    print(f"number of tokens of {query} query:{get_tokens(query, MODEL)}")
+                    print(f"number of tokens of {response} response:{get_tokens(response, MODEL)}")
+                    tokens_count = st.empty()
+                    tokens_count.caption(f"""query used {get_tokens(query, MODEL)} tokens """)
+                    tokens_count = st.empty()
+                    tokens_count.caption(f"""response used {get_tokens(response, MODEL)} tokens """)
+                else:
+                    logging.info(query)
+                    logging.info(response)
 
             st.session_state.requests.append(query)
             st.session_state.responses.append(response)
@@ -151,13 +172,13 @@ if openai_api_key:
         if st.session_state['responses']:
             download_str_current = '\n'.join(download_str)
             if download_str_current:
-                print(f"current date:{datetime.now()}")
                 now = datetime.now()
-                print(f"log stream:{log_stream.getvalue()}")
-                val = log_stream.getvalue()
+                # Print the output
+                with open('./app.log') as current_log:
+                    data = current_log.read()
                 st.download_button(
                     label="Download data as CSV",
-                    data=val,
+                    data=str(data),
                     file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.csv",
                     mime="text/csv")
 
