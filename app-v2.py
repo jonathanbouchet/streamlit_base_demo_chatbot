@@ -63,8 +63,6 @@ def get_conversation_string():
     return conversation_string
 
 
-# openai_api_key = get_open_ai_key()
-
 # Set API key
 openai_api_key = st.sidebar.text_input(
     ":blue[API-KEY]",
@@ -92,14 +90,13 @@ if 'requests' not in st.session_state:
 
 if openai_api_key:
 
-    # llm = ChatOpenAI(model_name=MODEL, openai_api_key=openai_api_key, temperature=0)
+    llm = ChatOpenAI(model_name=MODEL, openai_api_key=openai_api_key, temperature=0)
 
     if 'buffer_memory' not in st.session_state:
-        pass
-        # st.session_state.buffer_memory=ConversationBufferWindowMemory(
-        #     k=10,
-        #     return_messages=True
-        # )
+        st.session_state.buffer_memory=ConversationBufferWindowMemory(
+            k=10,
+            return_messages=True
+        )
 
     template_insurance="""let's play a game where you ask me a series of questions, the order of which is influenced by my responses. every time I say "new game" we restart the process. 
         the first question is "what is your name?" 
@@ -124,11 +121,11 @@ if openai_api_key:
     prompt_template = ChatPromptTemplate.from_messages(
         [system_msg_template, MessagesPlaceholder(variable_name="history"), human_msg_template]
     )
-    # conversation = ConversationChain(
-    #     memory=st.session_state.buffer_memory,
-    #     prompt=prompt_template,
-    #     llm=llm, verbose=True
-    # )
+    conversation = ConversationChain(
+        memory=st.session_state.buffer_memory,
+        prompt=prompt_template,
+        llm=llm, verbose=True
+    )
 
     # container for chat history
     response_container = st.container()
@@ -145,8 +142,8 @@ if openai_api_key:
                 conversation_string = get_conversation_string()
                 # st.subheader("Query:")
                 # st.write(query)
-                # response = conversation.predict(input=f"Query:\n{query}")
-                response = f"(for debugging only, response = input): {query}"
+                response = conversation.predict(input=f"Query:\n{query}")
+                # response = f"(for debugging only, response = input): {query}"
                 download_str.append(f"{get_time()}\tAI\t{response}")
                 download_str.append(f"{get_time()}\tHuman\t{query}")
                 logging.info(query)
