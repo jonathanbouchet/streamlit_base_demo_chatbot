@@ -55,6 +55,17 @@ def get_tokens(text: str, model_name: str) -> int:
     return len(tokens)
 
 
+def clear_text():
+    # st.session_state["temp"] = st.session_state["text"]
+    st.session_state["input"] = ""
+
+
+def on_input_change():
+    user_input = st.session_state.user_input
+    st.session_state.past.append(user_input)
+    st.session_state.generated.append("The messages from Bot\nWith new line")
+
+
 def get_conversation_string():
     conversation_string = ""
     for i in range(len(st.session_state['responses']) - 1):
@@ -138,13 +149,16 @@ if openai_api_key:
 
     download_str = []
     with textcontainer:
-        query = st.text_input("Query: ", key="input")
+        print(f"requests:{st.session_state.requests}")
+        print(f"responses:{st.session_state.requests}")
+        query = st.text_input("Query: ", key="input", value="", placeholder="")
+        # query = st.text_input("Query: ")
         if query:
             print(f"query:{query}")
             with st.spinner("typing..."):
                 conversation_string = get_conversation_string()
                 # st.subheader("Query:")
-                # st.write(query)
+                # st.write("")
                 # response = conversation.predict(input=f"Query:\n{query}")
                 response = f"(for debugging only, response = input): {query}"
                 download_str.append(f"{get_time()}\tAI\t{response}")
@@ -181,11 +195,12 @@ if openai_api_key:
                     data=str(data),
                     file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.csv",
                     mime="text/csv")
-
             for i in range(len(st.session_state['responses'])):
+                print("in responses")
                 message(st.session_state['responses'][i],
                         key=str(i))
                 if i < len(st.session_state['requests']):
+                    print("in requests")
                     message(st.session_state["requests"][i],
                             is_user=True,
                             key=str(i) + '_user')
