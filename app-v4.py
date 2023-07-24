@@ -137,11 +137,20 @@ if openai_api_key:
             # Print the output
             with open('./app.log') as current_log:
                 data = current_log.read()
+            data_pdf_path = get_pdf(data)
+            with open(data_pdf_path, "rb") as pdf_file:
+                data_pdf = pdf_file.read()
+
             st.download_button(
                 label="Download data as CSV",
                 data=str(data),
                 file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.csv",
                 mime="text/csv")
+            st.download_button(
+                label="Download data as pdf",
+                data=data_pdf,
+                file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.pdf",
+                mime="application/octet-stream")
 
         print(f"end of session\t{st.session_state.messages}")
 
