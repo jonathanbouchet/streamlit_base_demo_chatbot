@@ -1,5 +1,7 @@
 # streamlit_base_demo_chatbot
 
+This is a features branch for experiments
+
 - demo for chatbot using `openai` and `streamlit`
 - features:
   - `openai` api key 
