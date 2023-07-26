@@ -4,7 +4,6 @@ import tiktoken
 from fpdf import FPDF
 
 
-
 def get_time():
     """return time"""
     now = datetime.now()
@@ -45,6 +44,35 @@ def get_pdf(log_file) -> str:
     fout = "app.pdf"
     pdf.output(fout)
     return fout
+
+
+def download_transcript(last_message_ai: str) -> None:
+    """
+    check keywords in the last message of the assistant
+    :param last_message_ai:
+    :return:
+    """
+    last_message_ai = last_message_ai.lower().strip()
+    if 'summary' in last_message_ai and 'download' in last_message_ai:
+        now = datetime.now()
+        print(f"last message was:{last_message_ai} @ {now}")
+        # Print the output
+        with open('./app.log') as current_log:
+            data = current_log.read()
+        data_pdf_path = get_pdf(data)
+        with open(data_pdf_path, "rb") as pdf_file:
+            data_pdf = pdf_file.read()
+
+        st.download_button(
+            label="Download data as CSV",
+            data=str(data),
+            file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.csv",
+            mime="text/csv")
+        st.download_button(
+            label="Download data as pdf",
+            data=data_pdf,
+            file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.pdf",
+            mime="application/octet-stream")
 
 
 def template_insurance():

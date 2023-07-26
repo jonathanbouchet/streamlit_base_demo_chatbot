@@ -134,28 +134,7 @@ if openai_api_key:
         # check for user response right at the beginning by looking at any message non-empty
         if st.session_state:
             if st.session_state['messages'][-1]['role'] == "assistant":
-                last_message = st.session_state['messages'][-1]['content'].lower().strip()
-                print(f"last message{last_message}")
-                if 'summary' in last_message and 'download' in last_message:
-                    now = datetime.now()
-                    print(f"last message was:{last_message} @ {now}")
-                    # Print the output
-                    with open('./app.log') as current_log:
-                        data = current_log.read()
-                    data_pdf_path = get_pdf(data)
-                    with open(data_pdf_path, "rb") as pdf_file:
-                        data_pdf = pdf_file.read()
-
-                    st.download_button(
-                        label="Download data as CSV",
-                        data=str(data),
-                        file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.csv",
-                        mime="text/csv")
-                    st.download_button(
-                        label="Download data as pdf",
-                        data=data_pdf,
-                        file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.pdf",
-                        mime="application/octet-stream")
+                download_transcript(st.session_state['messages'][-1]['content'])
 
         print(f"end of session\t{st.session_state.messages}")
 
