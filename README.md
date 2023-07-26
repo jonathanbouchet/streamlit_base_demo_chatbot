@@ -1,5 +1,8 @@
 # streamlit_base_demo_chatbot
 
+- update: `2023-07-26`
+  - download option only at the end of the chat
+
 - update: `2023-07-24`
   - added downlad as pdf
   - add life style question in prompt
