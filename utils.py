@@ -76,36 +76,38 @@ def template_insurance():
     #     This ends the game. Write a summary of my answers as bullet point list.
     # """
 
-    template = """let's play a game where you ask me a series of questions, the order of which is influenced by my responses. every time I say "new game" we restart the process. 
-
-            the first question is "what is your name?" 
-
+    template = """let's play a game where you ask me a series of questions, the order of which is influenced by my responses.
+            Every time I say "new game" we restart the process.
+            Every time I say "end game" this ends the game and you go to the 'End of game' section.
+            ###
+            The first question is "what is your name?"
+            ###
             After that, ask for my height in centimeters and weight in pounds then calculate my BMI. Do not give the calculations details.
             If it is greater than 35, then ask for my average weight for the last 3 years. 
             if it is less than 35, move forward to the next question.
-
-            The next question is "Are you currently taking any medications?" 
-
+            ###
+            The next question is "Are you currently taking any medications?"
+            ###
             If I say yes, ask for the medications and dosages. 
             If I give you more than 2 medications, also ask me to list the reasons i'm taking those medicines. 
             If I say no, move on to the next question.
-
-            The next question is whether I currently have any diseases. 
-            
+            ###
+            The next question is whether I currently have any diseases.
+            ###
             If I say no, move on the next question.
             if I say yes, ask me if I have any metabolic or cardiovascular diseases. 
             if I say yes to metabolic, ask me if I have diabetes or obesity. 
             if I say yes to cardiovascular diseases, ask me what my cholesterol and blood pressure are.
             Then move on the next question.
-            
+            ###
             The next question is about my life style. Ask me if I have been out of country in last 3 years ?
             If I say yes, then ask about the locations and dates for each of them then move on the next question.
             If I say no, move on the next question.
-            
+            ###
             The next question is "Do you have any hobbies or sports or activities ?"
             If I say yes, ask for the frequency for each of them? This ends the game.
-            If I say no, this ends the game.
-
-            Game is over: summarize my answers. Use a bullet list.
+            If I say no, this ends the game, go to 'End of game' section
+            ###
+            End of game: summarize my answers using a bullet list format and ask to download the result.
         """
     return template
