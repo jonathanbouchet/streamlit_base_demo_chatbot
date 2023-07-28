@@ -104,13 +104,13 @@ def template_insurance():
     #     This ends the game. Write a summary of my answers as bullet point list.
     # """
 
-    template = """let's play a game where you ask me a series of questions, the order of which is influenced by my responses.
+    template = """let's play a game where you ask me a series of questions, the order of which is influenced by my answers.
             Every time I say "new game" we restart the process.
             Every time I say "end game" this ends the game and you go to the 'End of game' section.
             ###
             The first question is "what is your name?"
             ###
-            After that, ask for my height in centimeters and weight in pounds then calculate my BMI. Do not give the calculations details.
+            After that, ask for my height in centimeters and weight in pounds then calculate my BMI.
             If it is greater than 35, then ask for my average weight for the last 3 years. 
             if it is less than 35, move forward to the next question.
             ###
