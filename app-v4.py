@@ -135,10 +135,9 @@ if check_password():
                 if active_voice == "Yes":
                     sound_file = BytesIO()
                     try:
-                        tts = gTTS(text=response, lang=st.session_state.locale.lang_code)
+                        tts = gTTS(text=response, lang='en')
                         tts.write_to_fp(sound_file)
-                        st.write(st.session_state.locale.stt_placeholder)
-                        st.audio(sound_file)
+                        st.audio(sound_file, start_time=0)
                     except gTTSError as err:
                         st.error(err)
                     # t1 = gtts.gTTS(response)
