@@ -14,8 +14,10 @@ from langchain.prompts import (
     MessagesPlaceholder
 )
 from utils import *
-sys.path.append('pyttsx3')
-import pyttsx3
+# sys.path.append('pyttsx3')
+# import pyttsx3
+import gtts
+from playsound import playsound
 
 
 # Create and configure logger
@@ -127,13 +129,12 @@ if check_password():
                 full_response = ""
                 for chunk in response.split():
                     full_response += chunk + " "
-                    time.sleep(0.05)
-                if active_voice == "Yes":
-                    engine = pyttsx3.init()
-                    engine.say(response)
-                    engine.runAndWait()
-                    engine = None
+                    time.sleep(0.01)
                 message_placeholder.markdown(full_response)
+                if active_voice == "Yes":
+                    t1 = gtts.gTTS(response)
+                    t1.save("test.mp3")
+                    playsound("test.mp3")
                 if show_tokens == "Yes":
                     assistant_tokens = get_tokens(full_response, MODEL)
                     tokens_count = st.empty()
