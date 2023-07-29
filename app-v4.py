@@ -14,7 +14,7 @@ from langchain.prompts import (
     MessagesPlaceholder
 )
 from utils import *
-sys.path.insert(1, './pyttsx3')
+sys.path.append('pyttsx3')
 import pyttsx3
 
 
