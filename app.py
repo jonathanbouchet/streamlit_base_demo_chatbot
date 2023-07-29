@@ -1,116 +1,79 @@
 import streamlit as st
-from langchain.chains import ConversationChain
-from langchain.chains.conversation.memory import ConversationEntityMemory
-from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
-from langchain.chat_models import ChatOpenAI
-from langchain.llms import OpenAI
-import openai
-from PIL import Image
-from datetime import datetime
 
-
-def get_open_ai_key():
-    """get openai key
-    :return:
-    """
-    return st.secrets["OPENAI_API_KEY"]
-
-
-def add_logo(logo_path):
-    """Read and return a resized logo"""
-    logo = Image.open(logo_path)
-    return logo
-
-
-# Initialize streamlit session states
-if "generated" not in st.session_state:
-    st.session_state["generated"] = []
-if "past" not in st.session_state:
-    st.session_state["past"] = []
-if "input" not in st.session_state:
-    st.session_state["input"] = ""
-if "stored_session" not in st.session_state:
-    st.session_state["stored_session"] = []
-
-
-def new_chat():
-    """
-    Clears session state and starts a new chat.
-    """
-    save = []
-    for i in range(len(st.session_state['generated'])-1, -1, -1):
-        save.append("User:" + st.session_state["past"][i])
-        save.append("Bot:" + st.session_state["generated"][i])
-    st.session_state["stored_session"].append(save)
-    st.session_state["generated"] = []
-    st.session_state["past"] = []
-    st.session_state["input"] = ""
-    # st.session_state.entity_memory.entity_store = {}
-    # st.session_state.entity_memory.buffer.clear()
-
-
-def get_text():
-    """get the user input
-    :return:
-    """
-    input_text = st.text_input("You: ", st.session_state["input"], key="input",
-                               placeholder="Your AI agent here. Ask me anything", label_visibility="hidden")
-    return input_text
-
-
-st.title("Reflexive.AI")
+st.title("Reflexive AI")
 st.header("Virtual Insurance Agent")
 
-# Set API key
-openai_api_key = st.sidebar.text_input(
-    ":blue[API-KEY]",
-    placeholder="Paste your OpenAI API key here",
-    type="password")
 
-MODEL = st.sidebar.selectbox(
-    label=":blue[MODEL]",
-    options=["gpt-3.5-turbo-16k",
-             "gpt-3.5-turbo",
-             "gpt-3.5-turbo-0613",
-             "gpt-3.5-turbo-16k-0613",
-             "text-davinci-003",
-             "text-davinci-002"])
+def check_password():
+    """Returns `True` if the user had the correct password."""
 
-if openai_api_key:
-    # llm = ChatOpenAI(
-    #     temperature=0,
-    #     openai_api_key=openai_api_key,
-    #     model_name=MODEL,
-    # )
-    print("model created")
-else:
-    st.sidebar.warning("API key require")
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state["password"] == st.secrets["password"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # don't store password
+        else:
+            st.session_state["password_correct"] = False
 
-st.sidebar.button("New Chat", on_click=new_chat, type='primary')
+    if "password_correct" not in st.session_state:
+        # First run, show input for password.
+        st.sidebar.text_input(
+            "Password", type="password", on_change=password_entered, key="password"
+        )
+        return False
+    elif not st.session_state["password_correct"]:
+        # Password not correct, show input + error.
+        st.sidebar.text_input(
+            "Password", type="password", on_change=password_entered, key="password"
+        )
+        st.error("Password incorrect")
+        return False
+    else:
+        # Password correct.
+        return True
 
-# Get the user input
-user_input = get_text()
-if user_input:
-    output = user_input
-    print(f"input: {user_input}, output:{output}")
-    st.session_state.past.append(user_input)
-    st.session_state.generated.append(user_input)
 
-    # Allow to download as well
-    download_str = []
-    # Display the conversation history using an expander, and allow the user to download it
-    with st.expander("Conversation", expanded=True):
-        for i in range(len(st.session_state['generated']) - 1, -1, -1):
-            st.info(st.session_state["past"][i], icon="🧐")
-            st.success(st.session_state["generated"][i], icon="🤖")
-            download_str.append(f"AI: {st.session_state['past'][i]}")
-            download_str.append(f"Human: {st.session_state['generated'][i]}")
+if check_password():
 
-        download_str = '\n'.join(download_str)
-        if download_str:
-            now = datetime.now()
-            st.download_button(
-                label="Download data as CSV",
-                data=download_str,
-                file_name=f"reflexive.ai-virtual-assistant-{now.strftime('%d-%m-%Y-%H-%M-%S')}.csv",
-                mime="text/csv")
+    # Set API key
+    openai_api_key = st.sidebar.text_input(
+        ":blue[API-KEY]",
+        placeholder="Paste your OpenAI API key here",
+        type="password")
+
+    MODEL = st.sidebar.selectbox(
+        label=":blue[MODEL]",
+        options=["gpt-3.5-turbo-16k-0613",
+                 "gpt-3.5-turbo",
+                 "gpt-3.5-turbo-16k",
+                 "gpt-3.5-turbo-0613",
+                 "text-davinci-003",
+                 "text-davinci-002"])
+
+    show_tokens = st.sidebar.radio(label=":blue[Display tokens]", options=('Yes', 'No'))
+
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
+    # print(f"start : st.session_state: {st.session_state.messages}, size: {len(st.session_state.messages)}")
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # React to user input
+    # print(f"before user input : st.session_state: {st.session_state.messages}, size: {len(st.session_state.messages)}")
+    if prompt := st.chat_input("What is up?"):
+        # Display user message in chat message container
+        st.chat_message("user").markdown(prompt)
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        # print(f"before assistant answer : st.session_state: {st.session_state.messages}, size: {len(st.session_state.messages)}")
+        response = f"Echo: {prompt}"
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            st.markdown(response)
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
