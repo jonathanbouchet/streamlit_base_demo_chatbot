@@ -42,7 +42,7 @@ pydeck==0.8.0
 Pygments==2.15.1
 Pympler==1.0.1
 pyobjc==9.2
-pyobjc-core==9.2
+pyobjc-core;platform_system=="Darwin"
 pyobjc-framework-Accounts==9.2
 pyobjc-framework-AddressBook==9.2
 pyobjc-framework-AdSupport==9.2
