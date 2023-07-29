@@ -16,8 +16,9 @@ from langchain.prompts import (
 from utils import *
 # sys.path.append('pyttsx3')
 # import pyttsx3
-import gtts
-from playsound import playsound
+from io import BytesIO
+from gtts import gTTS, gTTSError
+# from playsound import playsound
 
 
 # Create and configure logger
@@ -132,9 +133,17 @@ if check_password():
                     time.sleep(0.01)
                 message_placeholder.markdown(full_response)
                 if active_voice == "Yes":
-                    t1 = gtts.gTTS(response)
-                    t1.save("test.mp3")
-                    playsound("test.mp3")
+                    sound_file = BytesIO()
+                    try:
+                        tts = gTTS(text=response, lang=st.session_state.locale.lang_code)
+                        tts.write_to_fp(sound_file)
+                        st.write(st.session_state.locale.stt_placeholder)
+                        st.audio(sound_file)
+                    except gTTSError as err:
+                        st.error(err)
+                    # t1 = gtts.gTTS(response)
+                    # t1.save("test.mp3")
+                    # playsound("test.mp3")
                 if show_tokens == "Yes":
                     assistant_tokens = get_tokens(full_response, MODEL)
                     tokens_count = st.empty()
