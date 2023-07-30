@@ -113,6 +113,81 @@ def check_password():
         return True
 
 
+def password_entered_v2():
+    """Checks whether a password entered by the user is correct."""
+    if (
+            st.session_state["username"] in st.secrets["passwords"]
+            and st.session_state["password"]
+            == st.secrets["passwords"][st.session_state["username"]]
+    ):
+        st.session_state["password_correct"] = True
+        del st.session_state["password"]  # don't store username + password
+        del st.session_state["username"]
+    else:
+        st.session_state["password_correct"] = False
+
+
+def check_password_v2():
+    """Returns `True` if the user had a correct password."""
+
+    password_entered_v2()
+
+    if "password_correct" not in st.session_state:
+        return False
+    elif not st.session_state["password_correct"]:
+        return False
+    else:
+        # Password correct.
+        return True
+
+
+def check_password_v3():
+    """Returns `True` if the user had a correct password."""
+    print("start check_password_v3")
+
+    # Create an empty container
+    placeholder = st.empty()
+
+    def password_entered_v3():
+        """Checks whether a password entered by the user is correct."""
+        if (
+                st.session_state["username"] in st.secrets["passwords"]
+                and st.session_state["password"]
+                == st.secrets["passwords"][st.session_state["username"]]
+        ):
+            st.session_state["password_correct"] = True
+            return True
+            del st.session_state["password"]  # don't store username + password
+            del st.session_state["username"]
+        else:
+            st.session_state["password_correct"] = False
+            return False
+
+    with placeholder.form("login"):
+        st.markdown("#### Enter your credentials")
+
+        username = st.text_input("username", key="username")
+        password = st.text_input("Password", type="password", key="password")
+        print(f"username{username}, password:{password}")
+        submit = st.form_submit_button("Login")
+        print(f"submit:{submit}")
+
+        if submit:
+
+            print("in submit")
+
+            if password_entered_v3():
+
+                if "password_correct" not in st.session_state:
+                    return False
+                elif not st.session_state["password_correct"]:
+                    st.error("User not known or password incorrect")
+                    return False
+                else:
+                    # Password correct.
+                    return True
+
+
 def template_insurance():
     """
     :return: prompt template
